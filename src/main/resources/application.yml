@@ -1,0 +1,17 @@
+server:
+  port: 5000
+  ssl:
+    enabled: true
+    key-store: classpath:openvidu-selfsigned.jks
+    key-store-password: openvidu
+    key-store-type: JKS
+    key-alias: openvidu-selfsigned
+
+openvidu.url: https://localhost:4443/
+openvidu.secret: MY_SECRET
+
+spring:
+  datasource:
+    url: jdbc:[Database]://localhost:3306/[Database스키마]
+    username: [DB 아이디]
+    password: [DB 비밀번호]
