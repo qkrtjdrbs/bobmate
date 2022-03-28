@@ -23,5 +23,7 @@ hs_err_pid*
 
 target/
 
+.idea
+
 # yml file
 !/src/main/resources/application.yml
