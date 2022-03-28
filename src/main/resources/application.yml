@@ -12,6 +12,14 @@ openvidu.secret: MY_SECRET
 
 spring:
   datasource:
-    url: jdbc:[Database]://localhost:3306/[Database스키마]
-    username: [DB 아이디]
-    password: [DB 비밀번호]
+    url: jdbc:h2:tcp://localhost/~/hb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  devtools:
+    livereload:
+      enabled: true
+    freemarker:
+      cache: false
+    thymeleaf:
+      cache: false
