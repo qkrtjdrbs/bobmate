@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="nav(user)">
+    <div th:if="${user}" class="mb-4">
+        <nav th:replace="fragments/navs/loginNav :: loginNav(user=${user})" />
+    </div>
+    <div th:unless="${user}" class="mb-4">
+        <nav th:unless="${user}" th:replace="fragments/navs/logoutNav :: logoutNav" />
+    </div>
+</div>

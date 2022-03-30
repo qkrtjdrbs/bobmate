@@ -81,7 +81,7 @@ public class LoginController {
 		}
 	}
 
-	@RequestMapping(value = "/logout", method = RequestMethod.POST)
+	@RequestMapping(value = "/user/logout", method = RequestMethod.POST)
 	public String logout(Model model, HttpSession httpSession) {
 		httpSession.invalidate();
 		return "redirect:/";
