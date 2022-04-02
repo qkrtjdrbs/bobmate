@@ -5,7 +5,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 
+import io.openvidu.Const;
+import io.openvidu.dto.SessionUser;
 import io.openvidu.mvc.controller.LoginController;
+import io.openvidu.mvc.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,9 +21,14 @@ import io.openvidu.java.client.ConnectionType;
 import io.openvidu.java.client.OpenVidu;
 import io.openvidu.java.client.OpenViduRole;
 import io.openvidu.java.client.Session;
+import org.springframework.web.bind.annotation.SessionAttribute;
+
+import static io.openvidu.Const.*;
 
 @Controller
 public class SessionController {
+
+	private final UserRepository userRepository;
 
 	// OpenVidu object as entrypoint of the SDK
 	private OpenVidu openVidu;
@@ -36,30 +44,33 @@ public class SessionController {
 	// Secret shared with our OpenVidu server
 	private String SECRET;
 
-	public SessionController(@Value("${openvidu.secret}") String secret, @Value("${openvidu.url}") String openviduUrl) {
+	public SessionController(@Value("${openvidu.secret}") String secret,
+							 @Value("${openvidu.url}") String openviduUrl,
+							 UserRepository userRepository) {
 		this.SECRET = secret;
 		this.OPENVIDU_URL = openviduUrl;
 		this.openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
+		this.userRepository = userRepository;
 	}
 
 	@RequestMapping(value = "/session", method = RequestMethod.POST)
 	public String joinSession(@RequestParam(name = "data") String clientData,
-			@RequestParam(name = "session-name") String sessionName, Model model, HttpSession httpSession) {
+			@RequestParam(name = "session-name") String sessionName,
+							  Model model,
+							  @SessionAttribute(name = LOGIN_USER, required = false) SessionUser loginUser) {
 
-		try {
-			checkUserLogged(httpSession);
-		} catch (Exception e) {
+		if(loginUser == null){
 			return "index";
 		}
 		System.out.println("Getting sessionId and token | {sessionName}={" + sessionName + "}");
 
 		// Role associated to this user
-		OpenViduRole role = LoginController.users.get(httpSession.getAttribute("loggedUser")).role;
+		OpenViduRole role = loginUser.getOpenViduRole();
 
 		// Optional data to be passed to other users when this user connects to the
 		// video-call. In this case, a JSON with the value we stored in the HttpSession
 		// object on login
-		String serverData = "{\"serverData\": \"" + httpSession.getAttribute("loggedUser") + "\"}";
+		String serverData = "{\"serverData\": \"" + loginUser.getUsername() + "\"}";
 
 		// Build connectionProperties object with the serverData and the role
 		ConnectionProperties connectionProperties = new ConnectionProperties.Builder().type(ConnectionType.WEBRTC)
@@ -80,14 +91,15 @@ public class SessionController {
 				model.addAttribute("sessionName", sessionName);
 				model.addAttribute("token", token);
 				model.addAttribute("nickname", clientData);
-				model.addAttribute("username", httpSession.getAttribute("loggedUser"));
+				model.addAttribute("username", loginUser.getUsername());
+				model.addAttribute("user", loginUser);
 
 				// Return session.html template
 				return "session";
 
 			} catch (Exception e) {
 				// If error just return dashboard.html template
-				model.addAttribute("username", httpSession.getAttribute("loggedUser"));
+				model.addAttribute("username", loginUser.getUsername());
 				return "dashboard";
 			}
 		} else {
@@ -109,14 +121,15 @@ public class SessionController {
 				model.addAttribute("sessionName", sessionName);
 				model.addAttribute("token", token);
 				model.addAttribute("nickname", clientData);
-				model.addAttribute("username", httpSession.getAttribute("loggedUser"));
+				model.addAttribute("username", loginUser.getUsername());
+				model.addAttribute("user", loginUser);
 
 				// Return session.html template
 				return "session";
 
 			} catch (Exception e) {
 				// If error just return dashboard.html template
-				model.addAttribute("username", httpSession.getAttribute("loggedUser"));
+				model.addAttribute("username", loginUser.getUsername());
 				return "dashboard";
 			}
 		}
@@ -124,11 +137,11 @@ public class SessionController {
 
 	@RequestMapping(value = "/leave-session", method = RequestMethod.POST)
 	public String removeUser(@RequestParam(name = "session-name") String sessionName,
-			@RequestParam(name = "token") String token, Model model, HttpSession httpSession) throws Exception {
+			@RequestParam(name = "token") String token,
+							 Model model,
+							 @SessionAttribute(name = LOGIN_USER, required = false) SessionUser loginUser) throws Exception {
 
-		try {
-			checkUserLogged(httpSession);
-		} catch (Exception e) {
+		if(loginUser == null){
 			return "index";
 		}
 		System.out.println("Removing user | sessioName=" + sessionName + ", token=" + token);
@@ -155,12 +168,6 @@ public class SessionController {
 			// The SESSION does not exist
 			System.out.println("Problems in the app server: the SESSION does not exist");
 			return "redirect:/dashboard";
-		}
-	}
-
-	private void checkUserLogged(HttpSession httpSession) throws Exception {
-		if (httpSession == null || httpSession.getAttribute("loggedUser") == null) {
-			throw new Exception("User not logged");
 		}
 	}
 

@@ -3,20 +3,31 @@ package io.openvidu.mvc.controller;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
+import io.openvidu.dto.LoginDto;
+import io.openvidu.dto.SessionUser;
+import io.openvidu.entity.User;
+import io.openvidu.mvc.service.UserService;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
 import io.openvidu.java.client.OpenViduRole;
 
+import static io.openvidu.Const.LOGIN_USER;
+
 @Controller
 @Slf4j
+@RequiredArgsConstructor
 public class LoginController {
+
+	private final UserService userService;
 
 	public class MyUser {
 
@@ -33,65 +44,49 @@ public class LoginController {
 
 	public static Map<String, MyUser> users = new ConcurrentHashMap<>();
 
-	public LoginController() {
-		users.put("publisher1", new MyUser("publisher1", "123", OpenViduRole.PUBLISHER));
-		users.put("publisher2", new MyUser("publisher2", "123", OpenViduRole.PUBLISHER));
-		users.put("publisher3", new MyUser("publisher3", "123", OpenViduRole.PUBLISHER));
-		users.put("publisher4", new MyUser("publisher4", "123", OpenViduRole.PUBLISHER));
-		users.put("subscriber", new MyUser("subscriber", "123", OpenViduRole.SUBSCRIBER));
-	}
-
-	@RequestMapping(value = "/")
-	public String logout(HttpSession httpSession) {
-		if (checkUserLogged(httpSession)) {
-			return "redirect:/dashboard";
-		} else {
-			httpSession.invalidate();
-			return "index";
+	@GetMapping("/user/login")
+	public String login(@ModelAttribute("user") LoginDto user,
+						@SessionAttribute(name = LOGIN_USER, required = false) SessionUser loginUser
+	){
+		log.info("login controller");
+		if(loginUser == null){
+			log.info("not login");
+			return "login";
 		}
-	}
-
-	@RequestMapping(value = "/dashboard", method = { RequestMethod.GET, RequestMethod.POST })
-	public String login(@RequestParam(name = "user", required = false) String user,
-			@RequestParam(name = "pass", required = false) String pass, Model model, HttpSession httpSession) {
-
-		// Check if the user is already logged in
-		String userName = (String) httpSession.getAttribute("loggedUser");
-		if (userName != null) {
-			// User is already logged. Immediately return dashboard
-			model.addAttribute("username", userName);
-			return "dashboard";
-		}
-
-		// User wasn't logged and wants to
-		if (login(user, pass)) { // Correct user-pass
-
-			// Validate session and return OK
-			// Value stored in HttpSession allows us to identify the user in future requests
-			httpSession.setAttribute("loggedUser", user);
-			model.addAttribute("username", user);
-
-			// Return dashboard.html template
-			return "dashboard";
-
-		} else { // Wrong user-pass
-			// Invalidate session and redirect to index.html
-			httpSession.invalidate();
-			return "redirect:/";
-		}
-	}
-
-	@RequestMapping(value = "/user/logout", method = RequestMethod.POST)
-	public String logout(Model model, HttpSession httpSession) {
-		httpSession.invalidate();
 		return "redirect:/";
 	}
 
-	private boolean login(String user, String pass) {
-		return (user != null && pass != null && users.containsKey(user) && users.get(user).pass.equals(pass));
+	@PostMapping("/user/login")
+	public String login(
+			@Valid @ModelAttribute("user") LoginDto user,
+			BindingResult bindingResult,
+			HttpServletRequest request,
+			@RequestParam(defaultValue = "/") String redirectURL
+	){
+		if(bindingResult.hasErrors()){
+			return "login";
+		}
+
+		User loginUser = userService.login(user);
+		if(loginUser == null){
+			bindingResult.reject("loginFail");
+			return "login";
+		}
+
+		HttpSession session = request.getSession();
+		session.setAttribute(LOGIN_USER, new SessionUser(loginUser));
+
+		return "redirect:" + redirectURL;
 	}
 
-	private boolean checkUserLogged(HttpSession httpSession) {
-		return !(httpSession == null || httpSession.getAttribute("loggedUser") == null);
+	@GetMapping("/user/logout")
+	public String logout(HttpServletRequest request) {
+		log.info("로그아웃 실행");
+		HttpSession session = request.getSession(false);
+		if(session != null){
+			session.invalidate();
+		}
+		return "redirect:/";
 	}
+
 }
