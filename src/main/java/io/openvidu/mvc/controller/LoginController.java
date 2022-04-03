@@ -1,8 +1,5 @@
 package io.openvidu.mvc.controller;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -11,7 +8,6 @@ import io.openvidu.dto.LoginDto;
 import io.openvidu.dto.SessionUser;
 import io.openvidu.entity.User;
 import io.openvidu.mvc.service.UserService;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -28,21 +24,6 @@ import static io.openvidu.Const.LOGIN_USER;
 public class LoginController {
 
 	private final UserService userService;
-
-	public class MyUser {
-
-		String name;
-		String pass;
-		OpenViduRole role;
-
-		public MyUser(String name, String pass, OpenViduRole role) {
-			this.name = name;
-			this.pass = pass;
-			this.role = role;
-		}
-	}
-
-	public static Map<String, MyUser> users = new ConcurrentHashMap<>();
 
 	@GetMapping("/user/login")
 	public String login(@ModelAttribute("user") LoginDto user,

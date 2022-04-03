@@ -92,6 +92,11 @@ public class SessionController {
 				model.addAttribute("token", token);
 				model.addAttribute("nickname", clientData);
 				model.addAttribute("username", loginUser.getUsername());
+				if(loginUser.getOpenViduRole().equals(OpenViduRole.PUBLISHER)){
+					model.addAttribute("canPublish", true);
+				} else {
+					model.addAttribute("canPublish", false);
+				}
 				model.addAttribute("user", loginUser);
 
 				// Return session.html template
@@ -99,8 +104,7 @@ public class SessionController {
 
 			} catch (Exception e) {
 				// If error just return dashboard.html template
-				model.addAttribute("username", loginUser.getUsername());
-				return "dashboard";
+				return "redirect:/";
 			}
 		} else {
 			// New session
@@ -122,6 +126,11 @@ public class SessionController {
 				model.addAttribute("token", token);
 				model.addAttribute("nickname", clientData);
 				model.addAttribute("username", loginUser.getUsername());
+				if(loginUser.getOpenViduRole().equals(OpenViduRole.PUBLISHER)){
+					model.addAttribute("canPublish", true);
+				} else {
+					model.addAttribute("canPublish", false);
+				}
 				model.addAttribute("user", loginUser);
 
 				// Return session.html template
@@ -129,8 +138,7 @@ public class SessionController {
 
 			} catch (Exception e) {
 				// If error just return dashboard.html template
-				model.addAttribute("username", loginUser.getUsername());
-				return "dashboard";
+				return "redirect:/";
 			}
 		}
 	}
@@ -156,18 +164,18 @@ public class SessionController {
 					// Last user left: session must be removed
 					this.mapSessions.remove(sessionName);
 				}
-				return "redirect:/dashboard";
+				return "redirect:/";
 
 			} else {
 				// The TOKEN wasn't valid
 				System.out.println("Problems in the app server: the TOKEN wasn't valid");
-				return "redirect:/dashboard";
+				return "redirect:/";
 			}
 
 		} else {
 			// The SESSION does not exist
 			System.out.println("Problems in the app server: the SESSION does not exist");
-			return "redirect:/dashboard";
+			return "redirect:/";
 		}
 	}
 

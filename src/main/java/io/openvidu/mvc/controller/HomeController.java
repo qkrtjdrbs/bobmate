@@ -15,7 +15,7 @@ import static io.openvidu.Const.*;
 @Slf4j
 public class HomeController {
 
-    @GetMapping("/")
+    @GetMapping(value = {"/", "/dashboard"})
     public String home(
             @SessionAttribute(required = false, name = LOGIN_USER) SessionUser loginUser,
             Model model

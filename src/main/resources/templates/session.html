@@ -19,7 +19,6 @@
 				</div>
 				<div id="main-video" class="col-md-6">
 					<p class="nickname"></p>
-					<p class="username"></p>
 					<video autoplay="autoplay" playsinline="true"></video>
 					<button id="buttonToggleVideo" class="btn btn-large btn-primary" type="submit" onclick="toggleVideo()">
 						video</button>
@@ -44,6 +43,7 @@
 	var token = [[${ token }]];
 	var nickname = [[${ nickname }]];
 	var username = [[${ username }]];
+	var canPublish = [[${ canPublish }]]
 
 	var publisher;
 	var audioEnabled = true;
@@ -249,7 +249,7 @@
 	}
 
 	function isPublisher() {
-		return username.includes('publisher');
+		return canPublish;
 	}
 </script>
 
