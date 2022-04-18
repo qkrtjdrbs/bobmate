@@ -9,6 +9,7 @@ import io.openvidu.Const;
 import io.openvidu.dto.SessionUser;
 import io.openvidu.mvc.controller.LoginController;
 import io.openvidu.mvc.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import static io.openvidu.Const.*;
 
 @Controller
+@Slf4j
 public class SessionController {
 
 	private final UserRepository userRepository;
@@ -55,7 +57,7 @@ public class SessionController {
 
 	@RequestMapping(value = "/session", method = RequestMethod.POST)
 	public String joinSession(@RequestParam(name = "data") String clientData,
-			@RequestParam(name = "session-name") String sessionName,
+							  @RequestParam(name = "session-name") String sessionName,
 							  Model model,
 							  @SessionAttribute(name = LOGIN_USER, required = false) SessionUser loginUser) {
 
@@ -138,6 +140,7 @@ public class SessionController {
 
 			} catch (Exception e) {
 				// If error just return dashboard.html template
+				log.info("openvidu server error");
 				return "redirect:/";
 			}
 		}

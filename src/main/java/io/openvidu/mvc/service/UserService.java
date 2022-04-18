@@ -1,6 +1,7 @@
 package io.openvidu.mvc.service;
 
 import io.openvidu.dto.LoginDto;
+import io.openvidu.dto.SignUpDto;
 import io.openvidu.entity.User;
 import io.openvidu.mvc.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,16 @@ public class UserService {
         return findUser
                 .filter(u -> encoder.matches(user.getPassword(), u.getPassword()))
                 .orElse(null);
+    }
+
+    public User save(SignUpDto user){
+        Optional<User> findUser = userRepository.findByEmail(user.getEmail());
+        if (findUser.isPresent()) {
+            return null;
+        }
+        user.setEncoder(encoder);
+        user.encodePassword();
+        return userRepository.save(new User(user));
     }
 
 }

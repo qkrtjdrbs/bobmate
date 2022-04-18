@@ -1,5 +1,6 @@
 package io.openvidu.entity;
 
+import io.openvidu.dto.SignUpDto;
 import io.openvidu.java.client.OpenViduRole;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,6 +32,14 @@ public class User {
         this.email = email;
         this.picture = picture;
         this.role = role;
+        this.openViduRole = OpenViduRole.PUBLISHER;
+    }
+
+    public User(SignUpDto dto) {
+        this.username = dto.getUsername();
+        this.email = dto.getEmail();
+        this.password = dto.getPassword();
+        this.role = Role.USER;
         this.openViduRole = OpenViduRole.PUBLISHER;
     }
 

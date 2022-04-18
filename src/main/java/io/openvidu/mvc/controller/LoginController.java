@@ -50,7 +50,7 @@ public class LoginController {
 
 		User loginUser = userService.login(user);
 		if(loginUser == null){
-			bindingResult.reject("loginFail");
+			bindingResult.reject("loginFail", "이메일이나 비밀번호가 올바르지 않습니다.");
 			return "login";
 		}
 
