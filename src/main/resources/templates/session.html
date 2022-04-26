@@ -17,15 +17,21 @@
 							Leave session</button>
 					</form>
 				</div>
-				<div id="main-video" class="col-md-6">
-					<p class="nickname"></p>
-					<video autoplay="autoplay" playsinline="true"></video>
-					<button id="buttonToggleVideo" class="btn btn-large btn-primary" type="submit" onclick="toggleVideo()">
-						video</button>
-					<button id="buttonToggleAudio" class="btn btn-large btn-success" type="submit" onclick="toggleAudio()">
-						audio</button>
-					<input type="text" id="my-message" placeholder="메시지 입력...">
-					<button class="btn btn-info" onclick="sendMyMessage()">전송</button>
+				<div class="col-md-12 row-vh d-flex flex-row">
+					<div id="main-video" class="col-md-6">
+						<p class="nickname"></p>
+						<video autoplay="autoplay" playsinline="true"></video>
+						<button id="buttonToggleVideo" class="btn btn-large btn-primary" onclick="toggleVideo()">
+							video</button>
+						<button id="buttonToggleAudio" class="btn btn-large btn-success" onclick="toggleAudio()">
+							audio</button>
+					</div>
+					<div class="col-md-6 row-vh d-flex flex-column">
+						<textarea id="chat-box" class="w-100 h-100" contenteditable="true"></textarea>
+						<input type="text" id="my-message" onkeyup="enterKey(event)"
+							   placeholder="메시지 입력...">
+						<button class="btn btn-info" onclick="sendMyMessage()">전송</button>
+					</div>
 				</div>
 				<div id="video-container" class="col-md-6"></div>
 			</div>
@@ -46,8 +52,8 @@
 	var canPublish = [[${ canPublish }]]
 
 	var publisher;
-	var audioEnabled = true;
-	var videoEnabled = true;
+	var audioEnabled = false;
+	var videoEnabled = false;
 
 
 	console.warn('Request of TOKEN gone WELL (TOKEN:' + token + ')');
@@ -79,9 +85,15 @@
 
 	// Receiver of all messages (usually before calling 'session.connect')
 	session.on('signal', (event) => {
-		console.log("메시지 도착 : data", event.data); // Message
-		console.log("메시지 도착 : from", event.from); // Connection object of the sender
-		console.log("메시지 도착 : type", event.type); // The type of message
+		const payload = event.data;
+		const sender = JSON.parse(event.from.data.split("%")[0]).clientData;
+		console.log("메시지 도착 : data ", payload); // Message
+		console.log("메시지 도착 : from ", event.from); // Connection object of the sender
+		console.log("메시지 도착 : type ", event.type); // The type of message
+		console.log("메시지 도착 : 닉네임 ", sender); // The type of message
+		document.querySelector("#chat-box").value += ('['+sender+'] '+ payload + '\n');
+		document.getElementById("chat-box").scrollTop
+				= document.getElementById("chat-box").scrollHeight;
 	});
 
 	// On every Stream destroyed...
@@ -159,26 +171,39 @@
 	function toggleVideo() {
 		videoEnabled = !videoEnabled;
 		this.publisher.publishVideo(videoEnabled);
+		document.querySelector('#buttonToggleVideo').style.backgroundColor
+				= videoEnabled ? "#dc3545" : "#007bff";
 	}
 
 	function toggleAudio() {
 		audioEnabled = !audioEnabled;
 		this.publisher.publishAudio(audioEnabled);
+		document.querySelector('#buttonToggleAudio').style.backgroundColor
+				= audioEnabled ? "#dc3545" : "#06d362";
 	}
 
 	function sendMyMessage() {
 		var message = $("#my-message").val();
-		console.log("보낼 메시지 : ", message);
-		session.signal({
-			data: message,
-			to: [],
-			type: "public-message"
-		})
-		$("#my-message").val("");
+		if(message.length != 0){
+			console.log("보낼 메시지 : ", message);
+			session.signal({
+				data: message,
+				to: [],
+				type: "public-message"
+			})
+			$("#my-message").val("");
+			document.getElementById("chat-box").scrollTop
+					= document.getElementById("chat-box").scrollHeight;
+		}
+	}
+
+	function enterKey(e){
+		if(e.key == 'Enter'){
+			sendMyMessage();
+		}
 	}
 
 	function leaveSession() {
-
 		// --- 9) Leave the session by calling 'disconnect' method over the Session object ---
 		session.disconnect();
 	}
@@ -199,7 +224,12 @@
 		var dataNode = document.createElement('div');
 		dataNode.className = "data-node";
 		dataNode.id = "data-" + nodeId;
-		dataNode.innerHTML = '<p class="nickname">' + clientData + '</p><p class="username">' + serverData + '</p>';
+		if(serverData === username){
+			dataNode.innerHTML =
+					'<p class="nickname">' + clientData + '</p><p class="username">나</p>';
+		} else {
+			dataNode.innerHTML = '<p class="nickname">' + clientData + '</p>';
+		}
 		videoElement.parentNode.insertBefore(dataNode, videoElement.nextSibling);
 		addClickListener(videoElement, clientData, serverData);
 	}
