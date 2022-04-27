@@ -96,6 +96,19 @@
 				= document.getElementById("chat-box").scrollHeight;
 	});
 
+	//Speech detection
+	session.on('publisherStartSpeaking', (event) => {
+		const streamId = event.streamId;
+		console.log('User ' + streamId + ' start speaking');
+		document.querySelector("#remote-video-"+streamId).style.border = "solid #0062cc";
+	});
+
+	session.on('publisherStopSpeaking', (event) => {
+		const streamId = event.streamId;
+		console.log('User ' + streamId + ' stop speaking');
+		document.querySelector("#remote-video-"+streamId).style.border = "none";
+	});
+
 	// On every Stream destroyed...
 	session.on('streamDestroyed', (event) => {
 		// Delete the HTML element with the user's name and nickname
