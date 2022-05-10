@@ -10,7 +10,7 @@
 		<div id="logged">
 			<div id="join" class="vertical-center">
 				<div id="join-dialog" class="jumbotron">
-					<h1>별명을 만든 후 방 제목을 입력하세요!</h1>
+					<h1>별명을 만들고 초대에 응하세요!</h1>
 					<form class="form-group" action="/session" method="post">
 						<p>
 							<label>별명</label>
@@ -18,7 +18,8 @@
 						</p>
 						<p>
 							<label>방 제목</label>
-							<input class="form-control" type="text" name="session-name" required="true"></input>
+							<input class="form-control" type="text" th:value="${sessionName}"
+								   name="session-name" required="true" readonly></input>
 						</p>
 						<p class="text-center">
 							<button class="btn btn-lg btn-success" type="submit">Join!</button>
@@ -45,7 +46,6 @@
 
 <script>
 	window.onload = function () { // Generate participant info
-		$("input[name='session-name']").val("세션 " + Math.floor(Math.random() * 10));
 		$("input[name='data']").val("참여자 " + Math.floor(Math.random() * 100));
 	}
 </script>

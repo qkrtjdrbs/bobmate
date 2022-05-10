@@ -3,11 +3,7 @@ package io.openvidu.mvc.controller;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.HttpSession;
-
-import io.openvidu.Const;
 import io.openvidu.dto.SessionUser;
-import io.openvidu.mvc.controller.LoginController;
 import io.openvidu.mvc.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,8 +26,6 @@ import static io.openvidu.Const.*;
 @Slf4j
 public class SessionController {
 
-	private final UserRepository userRepository;
-
 	// OpenVidu object as entrypoint of the SDK
 	private OpenVidu openVidu;
 
@@ -47,12 +41,10 @@ public class SessionController {
 	private String SECRET;
 
 	public SessionController(@Value("${openvidu.secret}") String secret,
-							 @Value("${openvidu.url}") String openviduUrl,
-							 UserRepository userRepository) {
+							 @Value("${openvidu.url}") String openviduUrl) {
 		this.SECRET = secret;
 		this.OPENVIDU_URL = openviduUrl;
 		this.openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
-		this.userRepository = userRepository;
 	}
 
 	@RequestMapping(value = "/session", method = RequestMethod.POST)
