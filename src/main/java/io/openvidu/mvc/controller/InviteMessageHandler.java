@@ -75,7 +75,6 @@ public class InviteMessageHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         Map<String, Object> httpSession = session.getAttributes();
         SessionUser sessionUser = (SessionUser) httpSession.get(LOGIN_USER);
-        log.info("로그인 유저 : {}", sessionUser);
         if(sessionUser != null){
             log.info("closed 세션 email : {}", sessionUser.getEmail());
             userSessionsMap.remove(sessionUser.getEmail());

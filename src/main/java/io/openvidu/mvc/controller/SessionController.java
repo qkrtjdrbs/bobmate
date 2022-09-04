@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.openvidu.dto.SessionUser;
-import io.openvidu.mvc.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -77,6 +76,8 @@ public class SessionController {
 
 				// Generate a new token with the recently created connectionProperties
 				String token = this.mapSessions.get(sessionName).createConnection(connectionProperties).getToken();
+				String screenToken
+						= this.mapSessions.get(sessionName).createConnection(connectionProperties).getToken();
 
 				// Update our collection storing the new token
 				this.mapSessionNamesTokens.get(sessionName).put(token, role);
@@ -84,6 +85,7 @@ public class SessionController {
 				// Add all the needed attributes to the template
 				model.addAttribute("sessionName", sessionName);
 				model.addAttribute("token", token);
+				model.addAttribute("screenToken", screenToken);
 				model.addAttribute("nickname", clientData);
 				model.addAttribute("username", loginUser.getUsername());
 				if(loginUser.getOpenViduRole().equals(OpenViduRole.PUBLISHER)){
@@ -109,6 +111,8 @@ public class SessionController {
 				Session session = this.openVidu.createSession();
 				// Generate a new token with the recently created connectionProperties
 				String token = session.createConnection(connectionProperties).getToken();
+				String screenToken
+						= session.createConnection(connectionProperties).getToken();
 
 				// Store the session and the token in our collections
 				this.mapSessions.put(sessionName, session);
@@ -118,6 +122,7 @@ public class SessionController {
 				// Add all the needed attributes to the template
 				model.addAttribute("sessionName", sessionName);
 				model.addAttribute("token", token);
+				model.addAttribute("screenToken", screenToken);
 				model.addAttribute("nickname", clientData);
 				model.addAttribute("username", loginUser.getUsername());
 				if(loginUser.getOpenViduRole().equals(OpenViduRole.PUBLISHER)){
