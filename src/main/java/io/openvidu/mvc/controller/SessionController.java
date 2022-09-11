@@ -8,16 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import io.openvidu.java.client.ConnectionProperties;
 import io.openvidu.java.client.ConnectionType;
 import io.openvidu.java.client.OpenVidu;
 import io.openvidu.java.client.OpenViduRole;
 import io.openvidu.java.client.Session;
-import org.springframework.web.bind.annotation.SessionAttribute;
 
 import static io.openvidu.Const.*;
 
@@ -46,7 +43,7 @@ public class SessionController {
 		this.openVidu = new OpenVidu(OPENVIDU_URL, SECRET);
 	}
 
-	@RequestMapping(value = "/session", method = RequestMethod.POST)
+	@PostMapping("/session")
 	public String joinSession(@RequestParam(name = "data") String clientData,
 							  @RequestParam(name = "session-name") String sessionName,
 							  Model model,
@@ -143,11 +140,12 @@ public class SessionController {
 		}
 	}
 
-	@RequestMapping(value = "/leave-session", method = RequestMethod.POST)
-	public String removeUser(@RequestParam(name = "session-name") String sessionName,
+	@PostMapping("/leave-session")
+	public String removeUser(
+			@RequestParam(name = "session-name") String sessionName,
 			@RequestParam(name = "token") String token,
-							 Model model,
-							 @SessionAttribute(name = LOGIN_USER, required = false) SessionUser loginUser) throws Exception {
+			@SessionAttribute(name = LOGIN_USER, required = false) SessionUser loginUser
+	) throws Exception {
 
 		if(loginUser == null){
 			return "index";
