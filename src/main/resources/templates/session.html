@@ -267,7 +267,12 @@
 	// --- 9) Function to be called when the 'Screen share' button is clicked
 	function publishScreenShare() {
 		// --- 9.1) To create a publisherScreen set the property 'videoSource' to 'screen'
-		var publisherScreen = OVScreen.initPublisher("video-container", { videoSource: "screen" });
+		var publisherScreen = OVScreen.initPublisher("video-container",
+				{
+					videoSource: "screen",
+					publishAudio: false
+				}
+		);
 
 		// --- 9.2) Publish the screen share stream only after the user grants permission to the browser
 		publisherScreen.once('accessAllowed', (event) => {
