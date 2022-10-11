@@ -102,6 +102,9 @@
 
 	var screenSharing = false;
 
+	const ENTER_MESSAGE = "방에 들어왔습니다.";
+	const LEAVE_MESSAGE = "방에서 나갔습니다.";
+
 	console.warn('Request of TOKEN gone WELL (TOKEN:' + token + ')');
 
 	// --- 1) Get an OpenVidu object ---
@@ -235,6 +238,14 @@
 
 				sessionCamera.publish(this.publisher);
 
+				sessionCamera.signal({
+					data: ENTER_MESSAGE,
+					to: [],
+					type: "public-message"
+				});
+				document.getElementById("chat-box").scrollTop
+						= document.getElementById("chat-box").scrollHeight;
+
 			} else {
 				console.warn('You don\'t have permissions to publish');
 				initMainVideoThumbnail(); // Show SUBSCRIBER message in main video
@@ -319,6 +330,13 @@
 
 	function leaveSession() {
 		// --- 10) Leave the session by calling 'disconnect' method over the Session object ---
+		sessionCamera.signal({
+			data: LEAVE_MESSAGE,
+			to: [],
+			type: "public-message"
+		});
+		document.getElementById("chat-box").scrollTop
+				= document.getElementById("chat-box").scrollHeight;
 		sessionScreen.disconnect();
 		sessionCamera.disconnect();
 	}
